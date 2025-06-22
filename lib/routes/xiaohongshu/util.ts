@@ -2,7 +2,7 @@ import { config } from '@/config';
 import logger from '@/utils/logger';
 import { parseDate } from '@/utils/parse-date';
 import puppeteer from '@/utils/puppeteer';
-import { ofetch } from 'ofetch';
+import ofetch from '@/utils/ofetch';
 import { load } from 'cheerio';
 import cache from '@/utils/cache';
 
@@ -131,13 +131,14 @@ async function renderNotesFulltext(notes, urlPrex, displayLivePhoto) {
     const promises = notes.flatMap((note) =>
         note.map(async ({ noteCard, id }) => {
             const link = `${urlPrex}/${id}`;
+            const guid = `${urlPrex}/${noteCard.noteId}`;
             const { title, description, pubDate, updated } = await getFullNote(link, displayLivePhoto);
             return {
                 title,
                 link,
                 description,
                 author: noteCard.user.nickName,
-                guid: noteCard.noteId,
+                guid,
                 pubDate,
                 updated,
             };
@@ -235,7 +236,8 @@ async function getFullNote(link, displayLivePhoto) {
     return data;
 }
 
-async function getUserWithCookie(url: string, cookie: string) {
+async function getUserWithCookie(url: string) {
+    const cookie = config.xiaohongshu.cookie;
     const res = await ofetch(url, {
         headers: getHeaders(cookie),
     });
@@ -267,4 +269,12 @@ function extractInitialState($) {
     return script;
 }
 
-export { getUser, getBoard, formatText, formatNote, renderNotesFulltext, getFullNote, getUserWithCookie };
+async function checkCookie() {
+    const cookie = config.xiaohongshu.cookie;
+    const res = await ofetch('https://edith.xiaohongshu.com/api/sns/web/v2/user/me', {
+        headers: getHeaders(cookie),
+    });
+    return res.code === 0 && !!res.data.user_id;
+}
+
+export { getUser, getBoard, formatText, formatNote, renderNotesFulltext, getFullNote, getUserWithCookie, checkCookie };

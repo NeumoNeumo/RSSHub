@@ -5,7 +5,7 @@ import { callApi } from './utils';
 
 export const route: Route = {
     path: '/user/:username/:routeParams?',
-    categories: ['social-media', 'popular'],
+    categories: ['social-media'],
     view: ViewType.Videos,
     example: '/youtube/user/@JFlaMusic',
     parameters: {
@@ -34,7 +34,7 @@ export const route: Route = {
     },
     radar: [
         {
-            source: ['www.youtube.com/user/:username', 'www.youtube.com/:username'],
+            source: ['www.youtube.com/user/:username', 'www.youtube.com/:username', 'www.youtube.com/:username/videos'],
             target: '/user/:username',
         },
     ],
